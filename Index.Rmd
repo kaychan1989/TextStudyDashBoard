@@ -1,0 +1,549 @@
+---
+title: "Communication Strategies to Promote Organ Donation Authorization among African Americans"
+Author: Kay Chansiri
+output: 
+
+  flexdashboard::flex_dashboard:
+    source_code: embed
+    storyboard: true
+    
+    
+---
+<style>
+    .navbar {
+      margin: 0;
+      padding: 0;
+      height: 5%;
+      display: block;
+      position: fixed
+    }
+    </style>
+    
+---
+
+Background & Sample's Demographics
+====
+
+column {.sidebar data-width = 600}
+--------------------
+
+### Study Background
+The current project is the collaboration between Siminoff Research Group and Gift of Life to examine effective communication strategies to promote the rates of next of kin reached and organ donation authorization among African Americans (AAs)-- the largest group of minorities in need of an organ transplant (U.S. Department of Health and Human Services, 2022). Since 1988 to March 2022, only 170,976 transplants have been performed among AAs, which is significantly lower than the the transplantation rate among their White counterparts at 548,330 (Organ Procurement & Transplantation Network, 2022). About 30,045 AAs are waiting for an organ transplant whereas only 36,216 deceased donors from 1988 to date are from the population group (OPTN, 2022).  
+
+National data also reported that the proportion of converted deceased donors to eligible deaths by race among AAs remained relatively unchanged at just over 2.2% since 2009, while White Americans’ rates continued to rise from 3.1% to 3.66% over the past two decades, even after controlling for age and  gender differences. A primary cause of lack of con-version in this population is family refusal of organ donation. Family authorization of deceased organ donation among Black Americans lags significantly behind White Americans. The most recent national data show this group has an estimated authorization rate of 54.9% compared to 77.0% for White Americans.
+
+The current study designed and tested the effectiveness of four communication strategies that may increase the rates of organ donation authorizatio and reached next of kin after their beloved one pass away. Those strategies include 1) cold call, 2)text prior to call, 3)general infographic sent prior to call and 4) race-specific infographic prior to call. The current study posited two aims:
+
+1) Test the intervention on the frequency of requests for tissue donation made with family decision makers (FDMs). 
+	H1: Text messages will result in greater rates of telephonic contact with FDMs.
+	H2: Text messages with infographics will be superior to the control arm and general text messages. 
+	H3: Text messages with infographics tailored to Black Americans will be superior to both general text messages and general test messages with general information for Black American FDMs. 
+2) Test the intervention on the frequency of authorization for tissue donation made with FDMs. 
+	H1: Text messages will result in greater rates of FDM authorization.
+	H2: Text messages with infographics will be superior to the control arm and general text messages. 
+	H3: Text messages with infographics tailored to Black Americans will be superior to both general text messages and general test messages with general information for Black American FDMs. 
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(haven)
+library(foreign)
+```
+
+
+```{r, include = FALSE}
+data<-read_sav("TT_study_data_kay.sav")
+```
+
+
+```{r, include = FALSE}
+#Remove NAs: Cases where NOK_not_reached = 1 removed
+data<-na.omit(data)
+```
+
+
+```{r, include = FALSE}
+head(data)
+```
+
+```{r}
+data$Black<-factor(data$Black,
+                   levels = c(0,1), 
+                   labels = c("Non Blacks", "Blacks"))
+```
+
+
+```{r}
+data$Male<-factor(data$Male,
+                   levels = c(0,1), 
+                   labels = c("Females", "Males"))
+```
+
+```{r}
+data$designated<-factor(data$designated, 
+                        levels = c(0,1),
+                        labels = c("Not Designated", "Designated"))
+```
+
+
+
+Column {.tabset}
+---------------------
+
+### Next of Kin's Gender
+
+
+```{r, include=FALSE}
+parts <- c(`Female` = 67, `Male` = 33)
+```
+
+```{r, echo=FALSE}
+
+waffle::waffle(parts, row = 5)+
+   ggplot2::labs(title = "Next of Kin's Gender", caption = "Of next of kin, 67% are female and 33% are male")
+  
+
+
+
+```
+
+
+
+### Next of Kin's Relationships with the Deceased 
+
+
+
+```{r, include = FALSE}
+table(data$NOKRelationship)
+```
+
+```{r, include=FALSE}
+data$NOKRelationship<-as.factor(data$NOKRelationship)
+```
+
+```{r, include=FALSE}
+df<-data.frame(group = c("Child", "Other", "Parent", "Sibling", "Spouse" ),
+               value = c(27.8,5.5, 10.5, 11, 45))
+```
+
+
+
+```{r, echo=FALSE}
+ggplot(df, aes(x = "", y = value, fill = group)) +
+  geom_col(color = "black") +
+  geom_label(aes(label = paste0(value, "%")),
+             color = "white",
+             position = position_stack(vjust = 0.5),
+             show.legend = FALSE) +
+  scale_fill_hue()+
+  coord_polar(theta = "y")+
+  theme_void()+
+  guides(fill = guide_legend(title = "Relationships"))+
+  labs(title = "Next of Kin's Relationship with the Deceased")
+```
+
+
+### Race and Gender of Deceased Potential Donors
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(haven)
+library(foreign)
+```
+
+
+```{r, include = FALSE}
+data<-read_sav("TT_study_data_kay.sav")
+```
+
+
+```{r, include = FALSE}
+#Remove NAs: Cases where NOK_not_reached = 1 removed
+data<-na.omit(data)
+```
+
+
+```{r, include = FALSE}
+head(data)
+```
+
+```{r}
+data$Black<-factor(data$Black,
+                   levels = c(0,1), 
+                   labels = c("Non Blacks", "Blacks"))
+```
+
+
+```{r}
+data$Male<-factor(data$Male,
+                   levels = c(0,1), 
+                   labels = c("Females", "Males"))
+```
+
+```{r}
+data$designated<-factor(data$designated, 
+                        levels = c(0,1),
+                        labels = c("Not Designated", "Designated"))
+```
+
+
+
+```{r}
+cbbPalette <- c("#FEFE62", "#D35FB7")
+
+ggplot(data, aes(x = designated, 
+                          y = prop.table(stat(count)), 
+                          fill = factor(Black), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+   facet_wrap(~Male)+
+    scale_fill_manual(values=cbbPalette)+
+    geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = 0, 
+              size = 2.3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = 'Organ Donation Designation', y = 'Percentage', fill = 'Race', title = "Percentage of Organ Donation Designation across Racial Groups and Gender")+
+  theme_bw()+
+  theme(plot.title = element_text(size = 11))
+```
+
+
+### Age of the Deceased 
+
+```{r, echo=FALSE}
+ggplot(data, aes(PT_age))+
+  geom_histogram(binwidth = 1, fill = "pink")+
+  theme_bw()+
+  labs(title = "The Distribution of Patients' Age", x = "Age Groups", y = "Count")
+```
+
+
+
+
+
+Hypothesis Visualization {.storyboard}
+====
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(haven)
+```
+
+
+```{r, include = FALSE}
+data<-read_sas("textstudy.sas7bdat")
+```
+
+
+```{r, include = FALSE}
+#Remove NAs: Cases where NOK_not_reached = 1 removed
+data<-na.omit(data)
+```
+
+
+```{r, include = FALSE}
+head(data)
+```
+
+```{r, include = FALSE}
+data$Authorization<-factor(data$NOK_Authorized,
+                           levels = c(0,1),
+                           labels = c("Authorized", "Not authorized"))
+```
+
+
+```{r, include = FALSE}
+data$Black<-factor(data$Black,
+                   levels = c(0,1),
+                   labels = c("Non-Blacks", "Blacks"))
+```
+
+### Plot 1: Frequency of Tissue Authorization across Racial Groups
+
+```{r, echo =FALSE}
+#Create colorblind friendly vector
+cbbPalette <- c("#40B0A6", "#E1BE6A")
+
+ggplot(data, aes(x = Authorization, y = ..count.., fill = Black)) + 
+    geom_bar(stat="count", position = position_dodge())+
+    scale_fill_manual(values=cbbPalette)+
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3,
+             aes(label= ..count..))+
+    labs(x = 'Authorization outcomes', y = 'Frequency', fill = 'Race', title = "Frequency of Tissue Authorization across Racial Groups")+
+  theme_bw()
+```
+
+
+
+### Plot 2: Percentage of Tissue Authorization across Racial Groups
+
+```{r, echo = FALSE}
+ggplot(data, aes(x = Authorization, 
+                          y = prop.table(stat(count)), 
+                          fill = factor(Black), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+    scale_fill_manual(values=cbbPalette)+
+    geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = 'Authorization outcomes', y = 'Percentage', fill = 'Race', title = "Percentage of Tissue Authorization across Racial Groups")+
+  theme_bw()
+```
+
+
+
+```{r, include = FALSE}
+data<-read_sas("textstudy.sas7bdat")
+```
+
+
+```{r, include = FALSE}
+data$Reached<-factor(data$NOK_not_reached,
+                           levels = c(0,1),
+                           labels = c("Reached", "Not reached"))
+```
+
+
+
+```{r, include = FALSE}
+data$Black<-factor(data$Black,
+                   levels = c(0,1),
+                   labels = c("Non-Blacks", "Blacks"))
+```
+
+### Plot 3: Frequency of Reached Next of Kin across Racial Groups
+```{r, echo=FALSE}
+#Create colorblind friendly vector
+cbbPalette <- c("#E69F00", "#56B4E9")
+
+ggplot(data, aes(x = Reached, y = ..count.., fill = Black)) + 
+    geom_bar(stat="count", position = position_dodge())+
+    scale_fill_manual(values=cbbPalette)+
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3,
+             aes(label= ..count..))+
+    labs(x = 'Reach outcomes', y = 'Frequency', fill = 'Race', title = "Frequency of Reached Next of Kin across Racial Groups")+
+  theme_bw()
+```
+
+### Plot 4: Percentage of Reached Next of Kin across Racial Groups
+
+```{r, echo=FALSE}
+ggplot(data, aes(x = Reached, 
+                          y = prop.table(stat(count)), 
+                          fill = factor(Black), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+    scale_fill_manual(values=cbbPalette)+
+    geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = 'Reach outcomes', y = 'Percentage', fill = 'Race', title = "Percentage of Reached Next of Kin across Racial Groups")+
+  theme_bw()
+```
+
+
+### Plot 5: Frequency of Organ Donation Authorization across Race and Experimental Conditions
+
+```{r, include = FALSE}
+data<-read_sav("TT_study_data_kay.sav")
+```
+
+
+```{r, include=FALSE}
+data<-na.omit(data)
+```
+
+```{r, include=FALSE}
+head(data)
+```
+
+```{r, include=FALSE}
+data$Rand_ARM<-factor(data$Rand_ARM,
+                      levels = c(1,2,3,4),
+                      labels = c("Control", "Text", "Text with Infographics", "Text with Tailored Inforgraphics"))
+```
+
+```{r, include=FALSE}
+data$Black<-factor(data$Black,
+                   levels = c(0,1),
+                   labels = c("Non Blacks", "Blacks"))
+```
+
+
+```{r, include=FALSE}
+data$Authorized_outcome<-factor(data$Authorized_outcome,
+                                levels = c(0,1),
+                                labels = c("Not Authorized", "Authorized"))
+```
+
+
+
+```{r, echo = FALSE}
+cbbPalette <- c("#40B0A6", "#E1BE6A")
+
+ggplot(data, aes(x = Authorized_outcome, y = ..count.., fill = Black)) + 
+    geom_bar(stat="count", position = position_dodge())+
+  facet_wrap(~Rand_ARM)+
+    scale_fill_manual(values=cbbPalette)+
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = 0, 
+              size = 2.3,
+             aes(label= ..count..))+
+    labs(x = 'Authorization outcomes', y = 'Frequency', fill = 'Race', title = "Frequency of Organ Donation Authorization across Race and Experimental Conditions")+
+  theme_bw()+
+    theme(plot.title = element_text(size = 12))
+```
+
+### Plot 6: Percentage of Authorization Outcomes across Racial Groups and Experimental Conditions
+
+```{r, echo = FALSE}
+ggplot(data, aes(x = Authorized_outcome, 
+                          y = prop.table(stat(count)), 
+                          fill = factor(Black), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+   facet_wrap(~Rand_ARM)+
+    scale_fill_manual(values=cbbPalette)+
+    geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = 0, 
+              size = 2.3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = 'Authorization outcomes', y = 'Percentage', fill = 'Race', title = "Percentage of Authorization Outcomes across Racial Groups and Experimental Conditions")+
+  theme_bw()+
+  theme(plot.title = element_text(size = 11))
+```
+
+### Plot 7: Frequency of Reached Next of Kin across Racial Groups and Experimental Conditions
+
+```{r, include = FALSE}
+data$NOK_reached_outcome<-factor(data$NOK_reached_outcome, 
+                                 levels = c(1), 
+                                 labels = c("Reached Next of Kin"))
+
+```
+
+
+```{r, echo =FALSE}
+cbbPalette <- c("#E69F00", "#56B4E9")
+scale_x<-c("Control", "Text", "Infographics", "Tailored Infographics")
+
+ggplot(data, aes(x = Rand_ARM, y = ..count.., fill = Black)) + 
+    geom_bar(stat="count", position = position_dodge())+
+    scale_fill_manual(values=cbbPalette)+
+  scale_x_discrete(labels = scale_x)+
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3,
+             aes(label= ..count..))+
+    labs(x = '', y = 'Frequency', fill = 'Race', title = "Frequency of Reached Next of Kin across Racial Groups and Experimental Conditions")+
+  theme_bw()+
+   theme(plot.title = element_text(size = 11))
+```
+
+### Plot 8: Percentage of Reached Next of Kin across Racial Groups and Experimental Conditions
+
+```{r, echo=FALSE}
+ggplot(data, aes(x = Rand_ARM, 
+                          y = prop.table(stat(count)), 
+                          fill = factor(Black), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+    scale_fill_manual(values=cbbPalette)+
+   scale_x_discrete(labels = scale_x)+
+    geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = '', y = 'Percentage', fill = 'Race', title = "Percentage of Reached Next of Kin across Racial Groups and Experimental Conditions")+
+  theme_bw()+
+     theme(plot.title = element_text(size = 11))
+```
+
+Time lags Visualization
+====
+Row
+-------------------------------------
+    
+### Minutes from Death Time to Attemps to Request for Organ Donation Authorization
+    
+    
+```{r, include=FALSE}
+library(hrbrthemes)
+
+```
+    
+    
+```{r}
+data<-read_sas("tt_all_cases_kay.sas7bdat")
+```
+
+    
+```{r, echo=FALSE}
+ggplot(data, aes(x=data$min_Death_to_ATT))+
+  geom_histogram(aes(y = ..density..), color = "black", fill= "white", binwidth = 1)+
+  geom_density(fill="#D35FB7", alpha = .2)+
+  theme_ipsum()+
+  labs(title = "Minutes from Death Time to Attemps to Request for Organ Donation Authorization", x = "Minutes", y = "Density")+
+  theme(plot.title = element_text(size = 12))
+ 
+```
+ 
+### Minutes from Attemps to Request for Organ Donation Authorization to Decision
+    
+```{r, echo=FALSE}
+
+ggplot(data, aes(x=data$min_ATT_to_decision))+
+  geom_histogram(aes(y = ..density..), color = "black", fill= "white", binwidth = 1)+
+  geom_density(fill="#1A85FF", alpha = .2)+
+  theme_ipsum()+
+  labs(title = "Minutes from Attemps to Request for Organ Donation Authorization to Decision", x = "Minutes", y = "Density")+
+  theme(plot.title = element_text(size = 12))
+``` 
+
+Row
+-------------------------------------
+    
+### Minutes from Death Time to Decision for Organ Donation Authorization
+    
+```{r, echo=FALSE}
+ggplot(data, aes(x=data$min_DT_to_decision))+
+  geom_histogram(aes(y = ..density..), color = "black", fill= "white", binwidth = 1)+
+  geom_density(fill="#FFC20A", alpha = .2)+
+  theme_ipsum()+
+  labs(title = "Minutes from Death Time to Decision for Organ Donation Authorization", x = "Minutes", y = "Density")+
+  theme(plot.title = element_text(size = 12))
+```
+    
+### Minutes from Referal Time to Attemp to Request for Organ Donation Authorization
+
+```{r, echo=FALSE}
+
+ggplot(data, aes(x=data$min_referral_to_ATT))+
+  geom_histogram(aes(y = ..density..), color = "black", fill= "white", binwidth = 1)+
+  geom_density(fill="#5D3A9B", alpha = .2)+
+  theme_ipsum()+
+  labs(title = "Minutes from Referal Time to Attemp to Request for Organ Donation Authorization", x = "Minutes", y = "Density")+
+  theme(plot.title = element_text(size = 12))
+```
