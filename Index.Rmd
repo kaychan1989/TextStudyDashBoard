@@ -547,3 +547,5 @@ ggplot(data, aes(x=data$min_referral_to_ATT))+
   labs(title = "Minutes from Referal Time to Attemp to Request for Organ Donation Authorization", x = "Minutes", y = "Density")+
   theme(plot.title = element_text(size = 12))
 ```
+
+> you can try to write up something
