@@ -209,16 +209,6 @@ ggplot(data, aes(x = designated,
 ```
 
 
-### Age of the Deceased 
-
-```{r, echo=FALSE}
-ggplot(data, aes(PT_age))+
-  geom_histogram(binwidth = 1, fill = "pink")+
-  theme_bw()+
-  labs(title = "The Distribution of Patients' Age", x = "Age Groups", y = "Count")
-```
-
-
 
 
 
@@ -367,31 +357,148 @@ data<-read_sav("TT_study_data_kay.sav")
 ```
 
 
-```{r, include=FALSE}
-data<-na.omit(data)
-```
-
-```{r, include=FALSE}
-head(data)
-```
 
 ```{r, include=FALSE}
 data$Rand_ARM<-factor(data$Rand_ARM,
                       levels = c(1,2,3,4),
-                      labels = c("Control", "Text", "Text with Infographics", "Text with Tailored Inforgraphics"))
+                      labels = c("1", "2", "3", "4"))
 ```
 
 ```{r, include=FALSE}
 data$Black<-factor(data$Black,
                    levels = c(0,1),
-                   labels = c("Non Blacks", "Blacks"))
+                   labels = c("White", "Black"))
 ```
 
 
 ```{r, include=FALSE}
 data$Authorized_outcome<-factor(data$Authorized_outcome,
                                 levels = c(0,1),
-                                labels = c("Not Authorized", "Authorized"))
+                                labels = c("Declined", "Authorized"))
+```
+
+
+```{r, include=FALSE}
+data<-data %>% 
+  drop_na(Authorized_outcome)
+```
+
+
+
+
+```{r, echo = FALSE}
+cbbPalette <- c("#40B0A6", "#E1BE6A")
+
+ggplot(data, aes(x = Rand_ARM, y = ..count.., fill = Authorized_outcome)) + 
+    geom_bar(stat="count", position = position_dodge())+
+  facet_wrap(~Black)+
+  
+    scale_fill_manual(values=cbbPalette)+
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = 0, 
+              size = 2.3,
+             aes(label= ..count..))+
+    labs(x = 'Arms', y = 'Frequency', fill = 'Authorization Outcomes', title = "Frequency of Tissue Donation Authorization across Race and Experimental Arms", caption = "Arm 1 = Control, 2 = Text, 3 = Infographics, 4 = Tailored Infographics")+
+  theme_bw()+
+    theme(plot.title = element_text(size = 12))
+```
+
+
+
+### Plot 6: Percentage of Authorization Outcomes across Racial Groups and Experimental Conditions
+
+
+```{r, include=FALSE}
+data1<-data %>% 
+  filter(Black == "White")
+```
+
+
+```{r, include=FALSE}
+library(scales)
+```
+
+
+```{r, include=FALSE}
+cbbPalette <- c("#40B0A6", "#E1BE6A")
+plot1<-ggplot(data1, aes(x=Rand_ARM, fill=Authorized_outcome))+
+  geom_bar(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..]), position="dodge" ) +
+  geom_text(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..], label=scales::percent(round(..count../tapply(..count.., ..x.. ,sum)[..x..], 3),accuracy = 1L) ),
+            stat="count", position=position_dodge(0.9), vjust=-0.5, size = 3)+
+   scale_fill_manual(values=cbbPalette, name = "Authorization Outcomes")+
+  scale_y_continuous(labels = percent_format(), limits = c(0,1))+
+  labs(y = "Percent", x = "", title = "Percentage of Authorization Outcomes across Race and Experimental Arms")+
+  theme_bw()+
+  theme(plot.title = element_text(size = 11), axis.title.y  = element_text(size = 10), legend.title = element_text(size = 10))
+plot1
+```
+
+```{r, include=FALSE}
+data2<-data %>% 
+  filter(Black == "Black")
+```
+
+
+
+```{r, include=FALSE}
+cbbPalette <- c("#40B0A6", "#E1BE6A")
+plot2<-ggplot(data2, aes(x=Rand_ARM, fill=Authorized_outcome))+
+  geom_bar(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..]), position="dodge" ) +
+  geom_text(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..], label=scales::percent(round(..count../tapply(..count.., ..x.. ,sum)[..x..], 2),accuracy = 1L) ),
+            stat="count", position=position_dodge(0.9), vjust=-0.5, size = 3)+
+   scale_fill_manual(values=cbbPalette, name = "Authorization Outcomes")+
+  scale_y_continuous(labels = percent_format(), limits = c(0,1))+
+  labs(y = "Percent", x = "", caption = "Arm 1 = Control, 2 = Text, 3 = Infographics, 4 = Tailored Infographics")+
+  theme_bw()+
+  theme(plot.title = element_text(size = 11), axis.title.y  = element_text(size = 10), legend.title = element_text(size = 10))
+plot2
+```
+
+
+
+```{r, echo =FALSE}
+cowplot::plot_grid(plot1, plot2, ncol =1, labels = c('White', 'Black'),
+                   label_size = 10,  label_x = 0, label_y = 0.1,
+  hjust = -0.5, vjust = -0.8)
+```
+
+### Plot 7: Frequency of Reached Next of Kin across Racial Groups and Experimental Conditions
+
+
+```{r, include = FALSE}
+data<-read_sav("TT_study_data_kay.sav")
+
+
+```
+
+
+
+```{r, include=FALSE}
+data$Rand_ARM<-factor(data$Rand_ARM,
+                      levels = c(1,2,3,4),
+                      labels = c("1", "2", "3", "4"))
+
+```
+
+```{r, include=FALSE}
+data$Black<-factor(data$Black,
+                   levels = c(0,1),
+                   labels = c("White", "Black"))
+```
+
+
+```{r, include=FALSE}
+data$NOK_reached_outcome<-factor(data$NOK_reached_outcome,
+                                levels = c(0,1),
+                                labels = c("Not Reached", "Reached"))
+```
+
+
+
+```{r, include=FALSE}
+data<-data %>% 
+  drop_na(NOK_reached_outcome)
 ```
 
 
@@ -399,87 +506,78 @@ data$Authorized_outcome<-factor(data$Authorized_outcome,
 ```{r, echo = FALSE}
 cbbPalette <- c("#40B0A6", "#E1BE6A")
 
-ggplot(data, aes(x = Authorized_outcome, y = ..count.., fill = Black)) + 
+ggplot(data, aes(x = Rand_ARM, y = ..count.., fill = NOK_reached_outcome)) + 
     geom_bar(stat="count", position = position_dodge())+
-  facet_wrap(~Rand_ARM)+
+  facet_wrap(~Black)+
+  
     scale_fill_manual(values=cbbPalette)+
    geom_text(stat = 'count',
               position = position_dodge(.9), 
               vjust = 0, 
               size = 2.3,
              aes(label= ..count..))+
-    labs(x = 'Authorization outcomes', y = 'Frequency', fill = 'Race', title = "Frequency of Organ Donation Authorization across Race and Experimental Conditions")+
+    labs(x = 'Arms', y = 'Frequency', fill = 'Reached Next of Kin', title = "Frequency of Next of Kin Reached across Race and Experimental Arms", caption = "Arm 1 = Control, 2 = Text, 3 = Infographics, 4 = Tailored Infographics")+
   theme_bw()+
     theme(plot.title = element_text(size = 12))
 ```
 
-### Plot 6: Percentage of Authorization Outcomes across Racial Groups and Experimental Conditions
-
-```{r, echo = FALSE}
-ggplot(data, aes(x = Authorized_outcome, 
-                          y = prop.table(stat(count)), 
-                          fill = factor(Black), 
-                          label = scales::percent(prop.table(stat(count))))) +
-    geom_bar(position = "dodge") + 
-   facet_wrap(~Rand_ARM)+
-    scale_fill_manual(values=cbbPalette)+
-    geom_text(stat = 'count',
-              position = position_dodge(.9), 
-              vjust = 0, 
-              size = 2.3) + 
-    scale_y_continuous(labels = scales::percent) + 
-    labs(x = 'Authorization outcomes', y = 'Percentage', fill = 'Race', title = "Percentage of Authorization Outcomes across Racial Groups and Experimental Conditions")+
-  theme_bw()+
-  theme(plot.title = element_text(size = 11))
-```
-
-### Plot 7: Frequency of Reached Next of Kin across Racial Groups and Experimental Conditions
-
-```{r, include = FALSE}
-data$NOK_reached_outcome<-factor(data$NOK_reached_outcome, 
-                                 levels = c(1), 
-                                 labels = c("Reached Next of Kin"))
-
-```
-
-
-```{r, echo =FALSE}
-cbbPalette <- c("#E69F00", "#56B4E9")
-scale_x<-c("Control", "Text", "Infographics", "Tailored Infographics")
-
-ggplot(data, aes(x = Rand_ARM, y = ..count.., fill = Black)) + 
-    geom_bar(stat="count", position = position_dodge())+
-    scale_fill_manual(values=cbbPalette)+
-  scale_x_discrete(labels = scale_x)+
-   geom_text(stat = 'count',
-              position = position_dodge(.9), 
-              vjust = -0.5, 
-              size = 3,
-             aes(label= ..count..))+
-    labs(x = '', y = 'Frequency', fill = 'Race', title = "Frequency of Reached Next of Kin across Racial Groups and Experimental Conditions")+
-  theme_bw()+
-   theme(plot.title = element_text(size = 11))
-```
-
 ### Plot 8: Percentage of Reached Next of Kin across Racial Groups and Experimental Conditions
 
-```{r, echo=FALSE}
-ggplot(data, aes(x = Rand_ARM, 
-                          y = prop.table(stat(count)), 
-                          fill = factor(Black), 
-                          label = scales::percent(prop.table(stat(count))))) +
-    geom_bar(position = "dodge") + 
-    scale_fill_manual(values=cbbPalette)+
-   scale_x_discrete(labels = scale_x)+
-    geom_text(stat = 'count',
-              position = position_dodge(.9), 
-              vjust = -0.5, 
-              size = 3) + 
-    scale_y_continuous(labels = scales::percent) + 
-    labs(x = '', y = 'Percentage', fill = 'Race', title = "Percentage of Reached Next of Kin across Racial Groups and Experimental Conditions")+
-  theme_bw()+
-     theme(plot.title = element_text(size = 11))
+
+```{r, include=FALSE}
+data1<-data %>% 
+  filter(Black == "White")
 ```
+
+
+```{r, include=FALSE}
+library(scales)
+```
+
+
+```{r, include=FALSE}
+cbbPalette <- c("#40B0A6", "#E1BE6A")
+plot1<-ggplot(data1, aes(x=Rand_ARM, fill= NOK_reached_outcome))+
+  geom_bar(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..]), position="dodge" ) +
+  geom_text(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..], label=scales::percent(round(..count../tapply(..count.., ..x.. ,sum)[..x..], 3),accuracy = 1L) ),
+            stat="count", position=position_dodge(0.9), vjust=-0.5, size = 3)+
+   scale_fill_manual(values=cbbPalette, name = "Reached Next of Kin")+
+  scale_y_continuous(labels = percent_format(), limits = c(0,1))+
+  labs(y = "Percent", x = "", title = "Percentage of Reached Next of Kin across Race and Experimental Arms")+
+  theme_bw()+
+  theme(plot.title = element_text(size = 11), axis.title.y  = element_text(size = 10), legend.title = element_text(size = 10))
+plot1
+```
+
+
+
+```{r, include=FALSE}
+data2<-data %>% 
+  filter(Black == "Black")
+```
+
+
+```{r, include=FALSE}
+cbbPalette <- c("#40B0A6", "#E1BE6A")
+plot2<-ggplot(data2, aes(x=Rand_ARM, fill= NOK_reached_outcome))+
+  geom_bar(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..]), position="dodge" ) +
+  geom_text(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..], label=scales::percent(round(..count../tapply(..count.., ..x.. ,sum)[..x..], 3),accuracy = 1L) ),
+            stat="count", position=position_dodge(0.9), vjust=-0.5, size = 3)+
+   scale_fill_manual(values=cbbPalette, name = "Reached Next of Kin")+
+  scale_y_continuous(labels = percent_format(), limits = c(0,1))+
+  labs(y = "Percent", x = "",  caption = "Arm 1 = Control, 2 = Text, 3 = Infographics, 4 = Tailored Infographics")+
+  theme_bw()+
+  theme(plot.title = element_text(size = 11), axis.title.y  = element_text(size = 10), legend.title = element_text(size = 10))
+plot2
+```
+
+
+```{r, echo = FALSE}
+cowplot::plot_grid(plot1, plot2, ncol =1, labels = c('White', 'Black'),
+                   label_size = 10,  label_x = 0, label_y = 0.1,
+  hjust = -0.5, vjust = -0.8)
+```
+
 
 Time lags Visualization
 ====
@@ -495,30 +593,45 @@ library(hrbrthemes)
 ```
     
     
-```{r}
-data<-read_sas("tt_all_cases_kay.sas7bdat")
+```{r, include=FALSE}
+data<-read_sas("tt_all_cases_kay_r.sas7bdat")
 ```
 
-    
-```{r, echo=FALSE}
-ggplot(data, aes(x=data$min_Death_to_ATT))+
-  geom_histogram(aes(y = ..density..), color = "black", fill= "white", binwidth = 1)+
-  geom_density(fill="#D35FB7", alpha = .2)+
-  theme_ipsum()+
-  labs(title = "Minutes from Death Time to Attemps to Request for Organ Donation Authorization", x = "Minutes", y = "Density")+
-  theme(plot.title = element_text(size = 12))
- 
+
+```{r, include=FALSE}
+data$TissueCaseOutcome<-as.factor(data$TissueCaseOutcome)
 ```
- 
-### Minutes from Attemps to Request for Organ Donation Authorization to Decision
+
+```{r, include=FALSE}
+table(data$TissueCaseOutcome)
+```
+
+
+
+
+
+```{r, echo = FALSE}
+colorset <- c("#FFFFFF", "#E1BE6A", "#40B0A6", "#D41159" )
+ggplot(data, aes(x=min_Death_to_ATT, color = TissueCaseOutcome))+
+  geom_line(stat = 'count')+
+    scale_x_continuous(breaks = seq(1, 12, by = 1), labels = c("60", "90", "120", "150", "180", "210", "240", "270", "300", "330", "360", "+360"))+
+  scale_color_manual(values=colorset, name = "Case Outcome")+
+  labs(title = "Minutes from Death Time to Attemps to Request for Tissue Donation Authorization", x = "Minutes", y = "Count", caption =  "NOK refers to next of kin")+
+
+  theme_ipsum()+
+
+  theme(plot.title = element_text(size = 12))
+```
+
+### Minutes from Attemps to Request for Tissue Donation Authorization to Decision
     
 ```{r, echo=FALSE}
 
 ggplot(data, aes(x=data$min_ATT_to_decision))+
   geom_histogram(aes(y = ..density..), color = "black", fill= "white", binwidth = 1)+
-  geom_density(fill="#1A85FF", alpha = .2)+
+  geom_density(fill="#FFC20A", alpha = .2)+
   theme_ipsum()+
-  labs(title = "Minutes from Attemps to Request for Organ Donation Authorization to Decision", x = "Minutes", y = "Density")+
+  labs(title = "Minutes from Death Time to Decision for Organ Donation Authorization", x = "Minutes", y = "Density")+
   theme(plot.title = element_text(size = 12))
 ``` 
 
@@ -548,4 +661,3 @@ ggplot(data, aes(x=data$min_referral_to_ATT))+
   theme(plot.title = element_text(size = 12))
 ```
 
-> you can try to write up something
